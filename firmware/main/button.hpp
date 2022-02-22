@@ -45,6 +45,8 @@ struct Button {
     gpio_config(&conf);
     gpio_set_level(gpio, 1);
 
+    prevState = static_cast<State>(gpio_get_level(gpio));
+
     ButtonHandler::initialize();
     ButtonHandler::addButton(this);
   }

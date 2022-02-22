@@ -10,6 +10,8 @@
 #include "essentials/wifi.hpp"
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
+#include "pwm_device.hpp"
+#include "scheduler.hpp"
 #include "temperature_sensor.hpp"
 #include "time.hpp"
 #include "water_sensor.hpp"
@@ -29,9 +31,9 @@ struct App {
 
   es::Esp32Storage configStorage{"config"};
   es::Config config{configStorage};
-  es::Config::Value<std::string> ssid = config.get<std::string>("ssid");
-  es::Config::Value<std::string> wifiPass = config.get<std::string>("wifiPass");
-  es::Config::Value<std::string> mqttUrl = config.get<std::string>("url", "");
+  es::Config::Value<std::string> ssid = config.get<std::string>("ssid", "");
+  es::Config::Value<std::string> wifiPass = config.get<std::string>("wifiPass", "");
+  es::Config::Value<std::string> mqttUrl = config.get<std::string>("url", "mqtt://127.0.0.1:1883");
   es::Config::Value<std::string> mqttUser = config.get<std::string>("user", "");
   es::Config::Value<std::string> mqttPass = config.get<std::string>("pass", "");
 
@@ -59,44 +61,31 @@ struct App {
 
   WaterSensor::WaterValue waterAmount = WaterSensor::WaterValue::unknown();
   std::array<float, 2> temperatures{};
-  std::array<int, 2> fanPowers{};
   WaterSensor waterSensor{*waterCalibrationHigh, *waterCalibrationLow};
-  bool shouldRestart = false;
 
   TemperatureSensor temperatureSensor{};
   Time& time = Time::instance();
 
-  Button button1{GPIO_NUM_18};
-  Button button2{GPIO_NUM_19};
+  Button resetButton{GPIO_NUM_18};
+  Button actionButton{GPIO_NUM_19};
+
+  PwmDevice light{GPIO_NUM_21};
+  Scheduler scheduler{};
+
+  std::array<PwmDevice, 2> fans{{
+    PwmDevice{GPIO_NUM_22},
+    PwmDevice{GPIO_NUM_23},
+  }};
 
   void run() {
-    button1.onHold(2s, []() { printf("Button 1 hold!\n"); });
-    button2.onHold(2s, []() { printf("Button 2 hold!\n"); });
-    button1.onClick([]() { printf("Button 1 click!\n"); });
-    button2.onClick([]() { printf("Button 2 click!\n"); });
+    if (resetButton.get() == Button::State::Pressed) {
+      goToSafeMode();
+    }
 
     time.setTimeZone(*timeZone);
     resetTemperatures();
 
     wifi.connect(*ssid, *wifiPass);
-
-    ESP_LOGI(TAG_APP, "Waiting for wifi connection...");
-    int tryCount = 0;
-    while (!wifi.isConnected() && tryCount < 1000) {
-      tryCount++;
-      vTaskDelay(pdMS_TO_TICKS(10));
-    }
-
-    settingsServer.start();
-
-    if (!wifi.isConnected()) {
-      ESP_LOGW(TAG_APP, "Couldn't connect to the wifi. Starting WiFi AP with settings server.");
-      wifi.startAccessPoint("esp32", "12345678", es::Wifi::Channel::Channel5);
-      while (true) {
-        ESP_LOGI(TAG_APP, "Waiting for configuration...");
-        vTaskDelay(pdMS_TO_TICKS(1000));
-      }
-    }
 
     auto mqttCert =
       std::string_view{reinterpret_cast<const char*>(mqttCertBegin), std::size_t(mqttCertEnd - mqttCertBegin)};
@@ -120,6 +109,19 @@ struct App {
       []() { ESP_LOGW(TAG_APP, "MQTT is disconnected!"); },
       1024 * 30);
 
+    resetButton.onHold(5s, [this]() {
+      ESP_LOGW(TAG_APP, "Clearing WiFi and MQTT configuration");
+      configStorage.clear();
+      esp_restart();
+    });
+
+    actionButton.onClick([this]() {
+      light.toggle(50);
+      if (mqtt->isConnected()) {
+        mqtt->publish("light", light.get(), es::Mqtt::Qos::Qos0, true);
+      }
+    });
+
     subs.emplace_back(
       mqtt->subscribe<float>("water/calibration/high", es::Mqtt::Qos::Qos0, [this](std::optional<float> value) {
         if (!value || waterSensor.calibrationHigh == *value) return;
@@ -134,22 +136,29 @@ struct App {
         doDelayedRestart();
       }));
 
-    subs.emplace_back(mqtt->subscribe<int>("light", es::Mqtt::Qos::Qos0, [](std::optional<int> value) {
+    subs.emplace_back(mqtt->subscribe<int>("light", es::Mqtt::Qos::Qos0, [this](std::optional<int> value) {
       if (!value) return;
-      // TODO finish him
-      printf("Light %d\n", *value);
+      light.set(*value);
     }));
 
     int fanIndex = 0;
-    for (auto& fanPower : fanPowers) {
-      subs.emplace_back(
-        mqtt->subscribe<int>("fan/0/power", es::Mqtt::Qos::Qos0, [fanIndex, &fanPower](std::optional<int> newfanPower) {
+    for (auto& fan : fans) {
+      subs.emplace_back(mqtt->subscribe<int>(
+        "fan/" + std::to_string(fanIndex) + "/power", es::Mqtt::Qos::Qos0, [&fan](std::optional<int> newfanPower) {
           if (!newfanPower) return;
-          fanPower = *newfanPower;
-          // TODO finish him
-          printf("Fan %d power %d\n", fanIndex, fanPower);
+          fan.set(*newfanPower);
         }));
+
+      fanIndex++;
     }
+
+    subs.emplace_back(mqtt->subscribe("lightOn/cron", es::Mqtt::Qos::Qos0, [this](std::string_view value) {
+      printf("light on cron: %s\n", std::string{value}.c_str());
+    }));
+
+    subs.emplace_back(mqtt->subscribe("lightOff/cron", es::Mqtt::Qos::Qos0, [this](std::string_view value) {
+      printf("light off cron: %s\n", std::string{value}.c_str());
+    }));
 
     mqtt->publish("water/calibration/high", waterSensor.calibrationHigh, es::Mqtt::Qos::Qos0, true);
     mqtt->publish("water/calibration/low", waterSensor.calibrationLow, es::Mqtt::Qos::Qos0, true);
@@ -158,6 +167,19 @@ struct App {
       readSensors();
       publishDeviceInfo();
       publishPlantInfo();
+      vTaskDelay(pdMS_TO_TICKS(1000));
+    }
+  }
+
+  void goToSafeMode() {
+    ESP_LOGW(TAG_APP, "Safe mode enabled");
+    ESP_LOGW(TAG_APP, "Starting WiFi AP with settings server.");
+
+    wifi.startAccessPoint("GrowPlants", "12345678", es::Wifi::Channel::Channel5);
+    settingsServer.start();
+
+    while (true) {
+      ESP_LOGI(TAG_APP, "Waiting for configuration...");
       vTaskDelay(pdMS_TO_TICKS(1000));
     }
   }
