@@ -60,7 +60,7 @@ struct App {
     }};
 
   WaterSensor::WaterValue waterAmount = WaterSensor::WaterValue::unknown();
-  std::array<float, 2> temperatures{};
+  std::array<float, TemperatureSensor::maxSensorCount> temperatures{};
   WaterSensor waterSensor{*waterCalibrationHigh, *waterCalibrationLow};
 
   TemperatureSensor temperatureSensor{};
@@ -71,6 +71,7 @@ struct App {
 
   PwmDevice light{GPIO_NUM_21};
   Scheduler scheduler{};
+  tm prevNow{};
 
   std::array<PwmDevice, 2> fans{{
     PwmDevice{GPIO_NUM_22},
@@ -78,12 +79,26 @@ struct App {
   }};
 
   void run() {
+    initialize();
+
+    buildApi();
+
+    while (true) {
+      tickScheduler();
+      readSensors();
+      publishDeviceInfo();
+      publishPlantInfo();
+
+      vTaskDelay(pdMS_TO_TICKS(1000));
+    }
+  }
+
+  void initialize() {
     if (resetButton.get() == Button::State::Pressed) {
       goToSafeMode();
     }
 
     time.setTimeZone(*timeZone);
-    resetTemperatures();
 
     wifi.connect(*ssid, *wifiPass);
 
@@ -108,7 +123,22 @@ struct App {
       },
       []() { ESP_LOGW(TAG_APP, "MQTT is disconnected!"); },
       1024 * 30);
+  }
 
+  void goToSafeMode() {
+    ESP_LOGW(TAG_APP, "Safe mode enabled");
+    ESP_LOGW(TAG_APP, "Starting WiFi AP with settings server.");
+
+    wifi.startAccessPoint("GrowPlants", "12345678", es::Wifi::Channel::Channel5);
+    settingsServer.start();
+
+    while (true) {
+      ESP_LOGI(TAG_APP, "Waiting for configuration...");
+      vTaskDelay(pdMS_TO_TICKS(1000));
+    }
+  }
+
+  void buildApi() {
     resetButton.onHold(5s, [this]() {
       ESP_LOGW(TAG_APP, "Clearing WiFi and MQTT configuration");
       configStorage.clear();
@@ -117,9 +147,12 @@ struct App {
 
     actionButton.onClick([this]() {
       light.toggle(50);
-      if (mqtt->isConnected()) {
-        mqtt->publish("light", light.get(), es::Mqtt::Qos::Qos0, true);
-      }
+      publishLight();
+    });
+
+    scheduler.setAction([this](int value) {
+      light.set(value);
+      publishLight();
     });
 
     subs.emplace_back(
@@ -136,15 +169,15 @@ struct App {
         doDelayedRestart();
       }));
 
-    subs.emplace_back(mqtt->subscribe<int>("light", es::Mqtt::Qos::Qos0, [this](std::optional<int> value) {
-      if (!value) return;
+    subs.emplace_back(mqtt->subscribe<int>("light/value", es::Mqtt::Qos::Qos0, [this](std::optional<int> value) {
+      if (!value || light.get() == *value) return;
       light.set(*value);
     }));
 
     int fanIndex = 0;
     for (auto& fan : fans) {
       subs.emplace_back(mqtt->subscribe<int>(
-        "fan/" + std::to_string(fanIndex) + "/power", es::Mqtt::Qos::Qos0, [&fan](std::optional<int> newfanPower) {
+        "fan/" + std::to_string(fanIndex) + "/value", es::Mqtt::Qos::Qos0, [&fan](std::optional<int> newfanPower) {
           if (!newfanPower) return;
           fan.set(*newfanPower);
         }));
@@ -152,36 +185,11 @@ struct App {
       fanIndex++;
     }
 
-    subs.emplace_back(mqtt->subscribe("lightOn/cron", es::Mqtt::Qos::Qos0, [this](std::string_view value) {
-      printf("light on cron: %s\n", std::string{value}.c_str());
+    subs.emplace_back(mqtt->subscribe("light/schedule", es::Mqtt::Qos::Qos0, [this](std::string_view value) {
+      if (!value.empty()) {
+        scheduler.setSchedule(value);
+      }
     }));
-
-    subs.emplace_back(mqtt->subscribe("lightOff/cron", es::Mqtt::Qos::Qos0, [this](std::string_view value) {
-      printf("light off cron: %s\n", std::string{value}.c_str());
-    }));
-
-    mqtt->publish("water/calibration/high", waterSensor.calibrationHigh, es::Mqtt::Qos::Qos0, true);
-    mqtt->publish("water/calibration/low", waterSensor.calibrationLow, es::Mqtt::Qos::Qos0, true);
-
-    while (true) {
-      readSensors();
-      publishDeviceInfo();
-      publishPlantInfo();
-      vTaskDelay(pdMS_TO_TICKS(1000));
-    }
-  }
-
-  void goToSafeMode() {
-    ESP_LOGW(TAG_APP, "Safe mode enabled");
-    ESP_LOGW(TAG_APP, "Starting WiFi AP with settings server.");
-
-    wifi.startAccessPoint("GrowPlants", "12345678", es::Wifi::Channel::Channel5);
-    settingsServer.start();
-
-    while (true) {
-      ESP_LOGI(TAG_APP, "Waiting for configuration...");
-      vTaskDelay(pdMS_TO_TICKS(1000));
-    }
   }
 
   void doDelayedRestart() {
@@ -197,9 +205,19 @@ struct App {
       nullptr);
   }
 
-  void resetTemperatures() {
-    for (auto& temp : temperatures) {
-      temp = std::numeric_limits<float>::quiet_NaN();
+  void publishLight() {
+    if (mqtt->isConnected()) {
+      mqtt->publish("light/value", light.get(), es::Mqtt::Qos::Qos1, true);
+    }
+  }
+
+  void tickScheduler() {
+    auto now = time.now();
+    if (now) {
+      if (prevNow.tm_min != now->tm_min) {
+        scheduler.tick();
+      }
+      prevNow = *now;
     }
   }
 
@@ -207,7 +225,9 @@ struct App {
     waterAmount = waterSensor.read();
 
     const auto measuredTemps = temperatureSensor.read();
-    resetTemperatures();
+    for (auto& temp : temperatures) {
+      temp = std::numeric_limits<float>::quiet_NaN();
+    }
 
     for (int i = 0; i < temperatureSensor.maxSensorCount; i++) {
       if (measuredTemps[i]) {
@@ -217,21 +237,25 @@ struct App {
   }
 
   void publishDeviceInfo() {
-    mqtt->publish("info/freeHeap", deviceInfo.freeHeap(), es::Mqtt::Qos::Qos0, false);
-    mqtt->publish("info/totalHeap", deviceInfo.totalHeap(), es::Mqtt::Qos::Qos0, false);
-    mqtt->publish("info/uptime", deviceInfo.uptime(), es::Mqtt::Qos::Qos0, false);
+    if (mqtt->isConnected()) {
+      mqtt->publish("info/freeHeap", deviceInfo.freeHeap(), es::Mqtt::Qos::Qos0, false);
+      mqtt->publish("info/totalHeap", deviceInfo.totalHeap(), es::Mqtt::Qos::Qos0, false);
+      mqtt->publish("info/uptime", deviceInfo.uptime(), es::Mqtt::Qos::Qos0, false);
 
-    mqtt->publish("info/datetime", time.nowISO(), es::Mqtt::Qos::Qos0, false);
+      mqtt->publish("info/datetime", time.nowISO(), es::Mqtt::Qos::Qos0, false);
+    }
   }
 
   void publishPlantInfo() {
-    mqtt->publish("water/amount", waterAmount.value, es::Mqtt::Qos::Qos0, true);
-    mqtt->publish("water/voltage", waterAmount.voltage, es::Mqtt::Qos::Qos0, true);
+    if (mqtt->isConnected()) {
+      mqtt->publish("water/amount", waterAmount.value, es::Mqtt::Qos::Qos0, true);
+      mqtt->publish("water/voltage", waterAmount.voltage, es::Mqtt::Qos::Qos0, true);
 
-    int tempIndex = 0;
-    for (const auto temp : temperatures) {
-      mqtt->publish("temp/" + std::to_string(tempIndex) + "/celsius", temp, es::Mqtt::Qos::Qos0, true);
-      tempIndex++;
+      int tempIndex = 0;
+      for (const auto temp : temperatures) {
+        mqtt->publish("temp/" + std::to_string(tempIndex) + "/celsius", temp, es::Mqtt::Qos::Qos0, true);
+        tempIndex++;
+      }
     }
   }
 };

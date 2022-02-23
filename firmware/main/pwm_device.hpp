@@ -176,7 +176,6 @@ public:
     currentPercentage = newPercentage;
     ESP_LOGI(TAG_PWM, "PWM set to %d%%, prev %d%%", currentPercentage, prevPercentage);
 
-    ledc_fade_start
     ledc_set_fade_with_time(LEDC_LOW_SPEED_MODE, ledcChannel, percentageToDuty(currentPercentage), 1000);
     ledc_fade_start(LEDC_LOW_SPEED_MODE, ledcChannel, LEDC_FADE_NO_WAIT);
   }
