@@ -66,7 +66,6 @@ struct App {
   TemperatureSensor temperatureSensor{};
   Time& time = Time::instance();
 
-  Button resetButton{GPIO_NUM_18};
   Button actionButton{GPIO_NUM_19};
 
   PwmDevice light{GPIO_NUM_21};
@@ -94,7 +93,7 @@ struct App {
   }
 
   void initialize() {
-    if (resetButton.get() == Button::State::Pressed) {
+    if (actionButton.get() == Button::State::Pressed) {
       goToSafeMode();
     }
 
@@ -139,7 +138,7 @@ struct App {
   }
 
   void buildApi() {
-    resetButton.onHold(5s, [this]() {
+    actionButton.onHold(5s, [this]() {
       ESP_LOGW(TAG_APP, "Clearing WiFi and MQTT configuration");
       configStorage.clear();
       esp_restart();
