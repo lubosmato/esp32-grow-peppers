@@ -1,0 +1,35 @@
+POST http://127.0.0.1:3001/api/v1/auth
+Accept: application/json
+Content-Type: application/json
+
+{"email": "lubos.matejcik@gmail.com", "password": "12345678"}
+
+###
+
+GET http://127.0.0.1:3001/api/v1/user
+Accept: application/json
+Content-Type: application/json
+
+###
+
+GET http://127.0.0.1:3001/api/v1/logout
+Accept: application/json
+Content-Type: application/json
+
+###
+POST http://127.0.0.1:3001/api/v1/subscribe
+Accept: application/json
+Content-Type: application/json
+
+{
+  "subscription": {
+    "endpoint": "https://fcm.googleapis.com/fcm/send/d_mEGRfFdtI:APA91bEltheLfb4jZT2cwXp_S4Re2Nq2woSWMVYfaxFrKrGuguXJqgDHMJPTS30jolmCVEA5VObnokzzkssvC3BiAT-5dgNCoY0r0EkY_xILTBLK_R47gpt9yn2GSoNGqptumpTCXhA8",
+    "expirationTime": null,
+    "keys": {
+        "p256dh": "BN-o2t7FVNlDIH85oJRp77VzlZ12DazihAIbPdIQUXkm6YUQu8IK7D9FwUwSYoppnrqzR9iOxYRWRuUzMWw2kEc",
+        "auth": "_X_GsTiayGwidGh0WiO1qw"
+    }
+  }
+}
+
+###
