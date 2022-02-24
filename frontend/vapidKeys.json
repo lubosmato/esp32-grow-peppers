@@ -1,0 +1,4 @@
+{
+  "public": "Public key base64, use `npx web-push generate-vapid-keys`",
+  "private": "Private key base64, use `npx web-push generate-vapid-keys`"
+}
