@@ -1,29 +1,29 @@
-self.addEventListener("activate", async () => {
-  try {
-    const applicationServerKey = urlB64ToUint8Array(
-      "BCbZQRUYTbaKqP8VVcLto7S5T0VWcCmcCBxMWBC_itEoaOAOHCo8_dXU42II3DADCaf5c_ESulH7lWf9quEjYyg"
-    )
-    const subscription = await self.registration.pushManager.subscribe({ 
-      applicationServerKey, 
-      userVisibleOnly: true,
-    })
+self.addEventListener("message", async (e) => {
+  if (e.data === "subscribe") {
+    try {
+      const mySub = await self.registration.pushManager.getSubscription()
+      if (mySub !== null) {
+        return
+      }
 
-    // TODO remove log
-    console.log(subscription)
-    await saveSubscription(subscription)
+      const applicationServerKey = urlB64ToUint8Array(
+        "BCbZQRUYTbaKqP8VVcLto7S5T0VWcCmcCBxMWBC_itEoaOAOHCo8_dXU42II3DADCaf5c_ESulH7lWf9quEjYyg"
+      )
+      const subscription = await self.registration.pushManager.subscribe({ 
+        applicationServerKey, 
+        userVisibleOnly: true,
+      })
+  
+      await saveSubscription(subscription)
 
-  } catch (err) {
-    console.error("Error", err)
+    } catch (err) {
+      console.error("Error", err)
+    }
   }
 })
 
 self.addEventListener("push", function (e) {
   const {title, body} = e.data.json()
-
-  // TODO this is useless when browser window is closed
-  // self.clients.matchAll().then(clients => {
-  //   clients.forEach(client => client.postMessage({title, body}))
-  // })
 
   const notificationOptions = {
     body: body,

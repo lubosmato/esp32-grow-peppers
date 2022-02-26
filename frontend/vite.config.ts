@@ -1,19 +1,11 @@
 import { defineConfig } from 'vite'
 import { svelte } from '@sveltejs/vite-plugin-svelte'
-import sveltePreprocess from 'svelte-preprocess'
-import tailwindcss from "tailwindcss"
-import tailwindConfig from './tailwind.config.js'
-import autoprefixer from "autoprefixer"
+import sveltePreprocess from "svelte-preprocess"
 
 // https://vitejs.dev/config/
 export default defineConfig({
   plugins: [svelte({
-    preprocess: sveltePreprocess({
-      sourceMap: false,
-      postcss: {
-        plugins: [tailwindcss(tailwindConfig), autoprefixer()],
-      }
-    })
+    preprocess: sveltePreprocess()
   })],
   server: {
     proxy: {
