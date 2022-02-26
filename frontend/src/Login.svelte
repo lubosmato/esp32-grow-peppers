@@ -45,6 +45,7 @@
             use:emailFocus
             bind:value={email}
             type="email"
+            name="email"
             placeholder="chilli@peppers.com"
           />
         </div>
@@ -54,6 +55,7 @@
           <input
             bind:value={password}
             type="password"
+            name="password"
             placeholder="Your password"
           />
         </div>
@@ -71,8 +73,7 @@
 </div>
 
 <style lang="sass">
-$breakpoint-mobile: 600px
-$border-radius: 12px
+@import "./sass/variables"
 
 .login-page
   background-image: url("login-bg.jpg")
@@ -91,12 +92,12 @@ $border-radius: 12px
     display: flex
     flex-direction: column
     
-    background: rgba(255, 255, 255, 0.1)
-    box-shadow: 0 8px 32px 0 rgba(255, 255, 255, 0.1)
+    background: rgba($light-color, 0.1)
+    box-shadow: 0 8px 32px 0 rgba($light-color, 0.1)
     backdrop-filter: blur(14px)
     -webkit-backdrop-filter: blur(6.5px)
     border-radius: $border-radius
-    border: 1px solid rgba(255, 255, 255, 0.18)
+    border: 1px solid rgba($light-color, 0.18)
     
     margin: 2rem
     padding: 2rem
@@ -132,71 +133,13 @@ $border-radius: 12px
         margin: 1rem
 
       .error
-        background: rgba(255, 0, 0, 0.4)
-        box-shadow: 0 8px 32px 0 rgba(255, 0, 0, 0.3)
+        background: rgba($danger-color, 0.4)
+        box-shadow: 0 8px 32px 0 rgba($danger-color, 0.3)
         backdrop-filter: blur(14px)
         -webkit-backdrop-filter: blur(6.5px)
         border-radius: $border-radius
-        border: 1px solid rgba(255, 0, 0, 0.6)
+        border: 1px solid rgba($danger-color, 0.6)
         padding: 1rem
         margin: 0 0 0.8rem 0
-
-input[type="email"], input[type="password"]
-  color: white
-  margin: 0.5em 0
-  padding: 0.8em
-  font-size: 1rem
-  font-family: inherit
-
-  background: rgba(255, 255, 255, 0.1)
-  box-shadow: 0 8px 32px 0 rgba(255, 255, 255, 0.1)
-  backdrop-filter: blur(14px)
-  -webkit-backdrop-filter: blur(6.5px)
-  border-radius: $border-radius
-  border: 1px solid rgba(255, 255, 255, 0.18)
-
-  transition: box-shadow 0.2s
-
-  &:hover
-    border: 1px solid rgba(255, 255, 255, 0.2)
-    box-shadow: 0 8px 32px 0 rgba(255, 255, 255, 0.1), 0 0 6px 3px rgba(255, 255, 255, 0.1)
-
-  &:focus
-    outline: none
-    border: 1px solid rgba(255, 255, 255, 0.4)
-    box-shadow: 0 8px 32px 0 rgba(255, 255, 255, 0.1), 0 0 6px 3px rgba(255, 255, 255, 0.2)
-
-  &::placeholder
-    color: rgb(255, 255, 255, 0.3)
-
-button
-  cursor: pointer
-  color: white
-  margin: 0.5em 0
-  padding: 0.6em 0.8em
-  font-size: 1rem
-  font-family: inherit
-
-  background: rgba(250, 64, 59, 0.1)
-  box-shadow: 0 8px 32px 0 rgba(250, 64, 59, 0.1)
-  backdrop-filter: blur(14px)
-  -webkit-backdrop-filter: blur(6.5px)
-  border-radius: $border-radius
-  border: 1px solid rgba(250, 64, 59, 0.18)
-
-  transition: box-shadow 0.2s, background 0.1s
-
-  &:hover
-    border: 1px solid rgba(250, 64, 59, 0.2)
-    box-shadow: 0 8px 32px 0 rgba(250, 64, 59, 0.1), 0 0 6px 3px rgba(250, 64, 59, 0.1)
-    background: rgba(250, 64, 59, 0.2)
-
-  &:active
-    background: rgba(250, 64, 59, 0.0)
-
-  &:focus
-    outline: none
-    border: 1px solid rgba(250, 64, 59, 0.4)
-    box-shadow: 0 8px 32px 0 rgba(250, 64, 59, 0.1), 0 0 6px 3px rgba(250, 64, 59, 0.2)
 
 </style>

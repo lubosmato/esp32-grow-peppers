@@ -1,8 +1,12 @@
+@import "./variables"
+
 body
   -webkit-font-smoothing: antialiased
   -moz-osx-font-smoothing: grayscale
   font-family: "Montserrat"
   font-size: 16px
+  color: $light-color
+  background-color: $dark-color
 
   h1, h2, h3, h4, h5, h6
     padding: 0.75em 0 0.5em 0
@@ -17,3 +21,61 @@ body
     font-size: 1.5em
   h4
     font-size: 1em
+
+input[type="email"], input[type="password"]
+  color: $light-color
+  margin: 0.5em 0
+  padding: 0.8em
+  font-size: 1rem
+  font-family: inherit
+
+  background: rgba($light-color, 0.1)
+  box-shadow: 0 8px 32px 0 rgba($light-color, 0.1)
+  backdrop-filter: blur(14px)
+  -webkit-backdrop-filter: blur(6.5px)
+  border-radius: $border-radius
+  border: 1px solid rgba($light-color, 0.18)
+
+  transition: box-shadow 0.2s
+
+  &:hover
+    border: 1px solid rgba($light-color, 0.2)
+    box-shadow: 0 8px 32px 0 rgba($light-color, 0.1), 0 0 6px 3px rgba($light-color, 0.1)
+
+  &:focus
+    outline: none
+    border: 1px solid rgba($light-color, 0.4)
+    box-shadow: 0 8px 32px 0 rgba($light-color, 0.1), 0 0 6px 3px rgba($light-color, 0.2)
+
+  &::placeholder
+    color: rgb($light-color, 0.3)
+
+button
+  cursor: pointer
+  color: $light-color
+  margin: 0.5em 0
+  padding: 0.6em 0.8em
+  font-size: 1rem
+  font-family: inherit
+
+  background: rgba($primary-color, 0.1)
+  box-shadow: 0 8px 32px 0 rgba($primary-color, 0.1)
+  backdrop-filter: blur(14px)
+  -webkit-backdrop-filter: blur(6.5px)
+  border-radius: $border-radius
+  border: 1px solid rgba($primary-color, 0.18)
+
+  transition: box-shadow 0.2s, background 0.1s
+
+  &:hover
+    border: 1px solid rgba($primary-color, 0.2)
+    box-shadow: 0 8px 32px 0 rgba($primary-color, 0.1), 0 0 6px 3px rgba($primary-color, 0.1)
+    background: rgba($primary-color, 0.2)
+
+  &:active
+    background: rgba($primary-color, 0.0)
+
+  &:focus
+    outline: none
+    border: 1px solid rgba($primary-color, 0.4)
+    box-shadow: 0 8px 32px 0 rgba($primary-color, 0.1), 0 0 6px 3px rgba($primary-color, 0.2)
