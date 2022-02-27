@@ -7,3 +7,9 @@
 [submodule "firmware/components/esp32-owb"]
 	path = firmware/components/esp32-owb
 	url = https://github.com/DavidAntliff/esp32-owb
+[submodule "firmware-camera/components/esp32-camera"]
+	path = firmware-camera/components/esp32-camera
+	url = https://github.com/espressif/esp32-camera
+[submodule "firmware-camera/components/essentials"]
+	path = firmware-camera/components/essentials
+	url = https://github.com/lubosmato/esp32-essentials
