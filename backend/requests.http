@@ -23,11 +23,11 @@ Content-Type: application/json
 
 {
   "subscription": {
-    "endpoint": "https://fcm.googleapis.com/fcm/send/d_mEGRfFdtI:APA91bEltheLfb4jZT2cwXp_S4Re2Nq2woSWMVYfaxFrKrGuguXJqgDHMJPTS30jolmCVEA5VObnokzzkssvC3BiAT-5dgNCoY0r0EkY_xILTBLK_R47gpt9yn2GSoNGqptumpTCXhA8",
+    "endpoint": "https://fcm.googleapis.com/fcm/send/c3ROFYgiVSw:APA91bESAmhq3CWHhaBUi1ZOVvVJYVZz7aeJ7UVnV5p2-0JZ3jGcwYl_cy61MfLfv-uaXTcssRDJ3qd8EsKaFBTOcZGBIYP4CmiMsBgdXNXEcv8n0j-AcXHpj-e6bs5SibwRZN9hAaFt",
     "expirationTime": null,
     "keys": {
-        "p256dh": "BN-o2t7FVNlDIH85oJRp77VzlZ12DazihAIbPdIQUXkm6YUQu8IK7D9FwUwSYoppnrqzR9iOxYRWRuUzMWw2kEc",
-        "auth": "_X_GsTiayGwidGh0WiO1qw"
+        "p256dh": "BHBKVF5hL18X18DDgeABJ2Ei0AW8VQ71Jv4eCSle9izEcsRjbDutkKx0K8Z0iBHCUUgAmXjPMX4z-R9nVaHfH8w",
+        "auth": "1qAvTqlRdHaqgc6hKj3rHQ"
     }
   }
 }

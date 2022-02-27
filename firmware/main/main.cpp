@@ -118,6 +118,7 @@ struct App {
       lastWill,
       [this]() {
         ESP_LOGI(TAG_APP, "MQTT is connected!");
+        mqtt->publish("connected", true, es::Mqtt::Qos::Qos0, false);
         publishDeviceInfo();
       },
       []() { ESP_LOGW(TAG_APP, "MQTT is disconnected!"); },
@@ -206,7 +207,7 @@ struct App {
 
   void publishLight() {
     if (mqtt->isConnected()) {
-      mqtt->publish("light/value", light.get(), es::Mqtt::Qos::Qos1, true);
+      mqtt->publish("light/value", light.get(), es::Mqtt::Qos::Qos0, true);
     }
   }
 

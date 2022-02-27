@@ -60,3 +60,17 @@ export function subscribeToDeviceDisconnected(action: (plantId: string) => void)
 
   client.subscribe("plants/+/last/will", { qos: 0 })
 }
+
+export function subscribeToDeviceConnected(action: (plantId: string) => void) {
+  client.on("message", async (topic, payload) => {
+    const match = topic.match(/plants\/(.*?)\/connected/)
+    if (!match) return
+
+    const plantId = match[1] ?? null
+    if (!plantId) return
+
+    action(plantId)
+  })
+
+  client.subscribe("plants/+/connected", { qos: 0 })
+}

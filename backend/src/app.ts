@@ -10,7 +10,7 @@ import morgan from "morgan"
 import getDb, { PushSubscription, User } from "./db"
 import { hashPassword } from "./password"
 import { sendNotification } from "./pushNotification"
-import { subscribeToDeviceDisconnected, subscribeToLowWaterEvent } from "./mqtt"
+import { subscribeToDeviceConnected, subscribeToDeviceDisconnected, subscribeToLowWaterEvent } from "./mqtt"
 
 declare module "express-session" {
   interface SessionData {
@@ -143,16 +143,21 @@ async function runServer() {
       })
   })
 
-  subscribeToLowWaterEvent(async (waterAmount, plantId) => {
+  const getSubscriptions = async (plantId: string) => {
     const usersToNotify = await db.all<Partial<User>>("SELECT id FROM users WHERE plantId = ?", [plantId])
     const userIds = usersToNotify.filter(user => user.id !== null).map(user => user.id)
     const subscriptions = await db.all<PushSubscription>(
       `SELECT * FROM push_subscriptions 
       WHERE userId IN (${userIds.map(() => "?").join(",")})`, userIds
     )
+    return subscriptions
+  }
+
+  subscribeToLowWaterEvent(async (waterAmount, plantId) => {
+    const subscriptions = await getSubscriptions(plantId)
     for (let sub of subscriptions) {
       try {
-        console.log(`notifying sub id: ${sub.id}, userId: ${sub.userId}`)
+        console.log(`notifying 'low water' sub id: ${sub.id}, userId: ${sub.userId}`)
         await sendNotification(sub, "🔥 Peppers Thirsty! 🔥", `Peppers need water! Water level is ${Math.round(waterAmount)}%.`)
       } catch (e) {
         console.error("Could not notify", { subId: sub.id, error: e })
@@ -161,16 +166,23 @@ async function runServer() {
   })
 
   subscribeToDeviceDisconnected(async (plantId) => {
-    const usersToNotify = await db.all<Partial<User>>("SELECT id FROM users WHERE plantId = ?", [plantId])
-    const userIds = usersToNotify.filter(user => user.id !== null).map(user => user.id)
-    const subscriptions = await db.all<PushSubscription>(
-      `SELECT * FROM push_subscriptions 
-      WHERE userId IN (${userIds.map(() => "?").join(",")})`, userIds
-    )
+    const subscriptions = await getSubscriptions(plantId)
     for (let sub of subscriptions) {
       try {
-        console.log(`notifying sub id: ${sub.id}, userId: ${sub.userId}`)
-        await sendNotification(sub, "🚫📶 Peppers Disconnected! 🚫📶", `Peppers lost wifi signal! Or maybe they came to life and disconnected self 🤷.`)
+        console.log(`notifying 'disconnected' sub id: ${sub.id}, userId: ${sub.userId}`)
+        await sendNotification(sub, "🚫📶 Peppers Offline! 🚫📶", `Peppers lost wifi signal! Or maybe they came to life and disconnected self 🤷.`)
+      } catch (e) {
+        console.error("Could not notify", { subId: sub.id, error: e })
+      }
+    }
+  })
+
+  subscribeToDeviceConnected(async (plantId) => {
+    const subscriptions = await getSubscriptions(plantId)
+    for (let sub of subscriptions) {
+      try {
+        console.log(`notifying 'connected' sub id: ${sub.id}, userId: ${sub.userId}`)
+        await sendNotification(sub, "✔️📶 Peppers Online! ✔️📶", `Peppers are back online! But be careful... They might download some restricted content 🤦‍♂️.`)
       } catch (e) {
         console.error("Could not notify", { subId: sub.id, error: e })
       }
