@@ -1,3 +1,0 @@
-[submodule "components/essentials"]
-	path = components/essentials
-	url = https://github.com/lubosmato/esp32-essentials.git

@@ -48,7 +48,7 @@ struct App {
   std::vector<std::unique_ptr<es::Mqtt::Subscription>> subs{};
 
   es::SettingsServer settingsServer{80,
-    "My App",
+    "Grow Plants",
     "1.0.1",
     {
       {"WiFi SSID", ssid},
