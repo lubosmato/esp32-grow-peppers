@@ -18,6 +18,7 @@ export interface User {
   email: string
   password: string
   plantId: string
+  camId: string
 }
 
 export interface PushSubscription {

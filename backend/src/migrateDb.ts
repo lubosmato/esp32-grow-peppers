@@ -6,8 +6,11 @@ import { hashPassword } from "./password"
 async function migrate() {
   const db = await getDb()
 
-  await db.run(`DROP TABLE users`)
-  await db.run(`DROP TABLE push_subscriptions`)
+  try {
+    await db.run(`DROP TABLE users`)
+    await db.run(`DROP TABLE push_subscriptions`)
+    await db.run(`DROP TABLE chart_data`)
+  } catch {}
 
   await db.run(`CREATE TABLE users (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -15,6 +18,7 @@ async function migrate() {
     email TEXT UNIQUE,
     password TEXT, 
     plantId TEXT,
+    camId TEXT,
     CONSTRAINT email_unique UNIQUE (email)
   )`)
 
@@ -25,11 +29,21 @@ async function migrate() {
     FOREIGN KEY (userId) REFERENCES users (id)
   )`)
 
+  await db.run(`CREATE TABLE chart_data (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    plantId INTEGER NOT NULL,
+    key VARCHAR(32) NOT NULL,
+    time INTEGER NOT NULL,
+    value DOUBLE NOT NULL    
+  )`)
+
+  await db.run(`CREATE INDEX idx_chart_data_plantId ON chart_data (plantId)`)
+
   await db.run(`
     INSERT INTO users 
-      (name, email, password, plantId)
+      (name, email, password, plantId, camId)
     VALUES 
-      ('Luboš Matejčík', 'lubos.matejcik@gmail.com', '${hashPassword("12345678")}', '0d17a0')
+      ('Luboš Matejčík', 'lubos.matejcik@gmail.com', '${hashPassword("12345678")}', '0d17a0', '30ab60')
   `)
 
   /*
