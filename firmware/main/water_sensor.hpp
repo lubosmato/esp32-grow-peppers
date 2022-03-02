@@ -47,6 +47,7 @@ public:
 
   WaterValue read() {
     const float voltage = readVoltage();
+    if (voltage < 0.5) return WaterValue::unknown();
     const float value = voltage * k + q;
     return {std::clamp(value, 0.0f, 100.0f), voltage};
   }
