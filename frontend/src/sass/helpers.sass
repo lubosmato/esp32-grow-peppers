@@ -1,0 +1,20 @@
+@import "./variables"
+
+%panel
+  background: rgba($light-color, $panel-opacity)
+  box-shadow: 0 8px 32px 0 rgba($light-color, $panel-opacity)
+  backdrop-filter: blur($panel-blur)
+  -webkit-backdrop-filter: blur($panel-blur)
+  border-radius: $border-radius
+  border: 1px solid rgba($light-color, $border-opacity)
+  color: $light-color
+
+@mixin buble($color)
+  background: rgba($color, 0.4)
+  box-shadow: 0 8px 32px 0 rgba($color, 0.3)
+  backdrop-filter: blur($panel-blur)
+  -webkit-backdrop-filter: blur($panel-blur)
+  border-radius: $border-radius
+  border: 1px solid rgba($color, 0.6)
+  padding: 1rem
+  margin: 0 0 0.8rem 0

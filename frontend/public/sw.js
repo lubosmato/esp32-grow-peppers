@@ -7,7 +7,7 @@ self.addEventListener("message", async (e) => {
       }
 
       const applicationServerKey = urlB64ToUint8Array(
-        "BCbZQRUYTbaKqP8VVcLto7S5T0VWcCmcCBxMWBC_itEoaOAOHCo8_dXU42II3DADCaf5c_ESulH7lWf9quEjYyg"
+        "BDJMvQAb07is9fMkNv0ZwHjc_1eXW_j5aAglkhWlwFaT6prYBClK1wjsNavG4Ps5JtxUxMcquq0eN_WVuJTw_Z8"
       )
       const subscription = await self.registration.pushManager.subscribe({ 
         applicationServerKey, 

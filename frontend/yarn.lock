@@ -7,6 +7,25 @@
   resolved "https://registry.yarnpkg.com/@fontsource/montserrat/-/montserrat-4.5.5.tgz#3408b8a20285a81b0743087bae5ed7aaa32c490c"
   integrity sha512-JEFI803levuRx3D0Lry4WoM/Azrc3xpHlogi2022Y8ykaAenXvrjMym2BVU1W5QsuRIL86vrSUaxchO7Vk4CIw==
 
+"@fortawesome/fontawesome-common-types@^0.3.0":
+  version "0.3.0"
+  resolved "https://registry.yarnpkg.com/@fortawesome/fontawesome-common-types/-/fontawesome-common-types-0.3.0.tgz#949995a05c0d8801be7e0a594f775f1dbaa0d893"
+  integrity sha512-CA3MAZBTxVsF6SkfkHXDerkhcQs0QPofy43eFdbWJJkZiq3SfiaH1msOkac59rQaqto5EqWnASboY1dBuKen5w==
+
+"@fortawesome/free-regular-svg-icons@^6.0.0":
+  version "6.0.0"
+  resolved "https://registry.yarnpkg.com/@fortawesome/free-regular-svg-icons/-/free-regular-svg-icons-6.0.0.tgz#f3cb91dac643472fe8138024b93fbfbdf05675cc"
+  integrity sha512-lYK6oyQL8HwZUAVWGqF7TGuwQBVfphNBVTdvPSD3h4gmQfGazm/xcwg3kmtcRycu3y6QspOC7hPXSoJbVqSYCw==
+  dependencies:
+    "@fortawesome/fontawesome-common-types" "^0.3.0"
+
+"@fortawesome/free-solid-svg-icons@^6.0.0":
+  version "6.0.0"
+  resolved "https://registry.yarnpkg.com/@fortawesome/free-solid-svg-icons/-/free-solid-svg-icons-6.0.0.tgz#bed4a501b631c6cfa35c09830f7cb63ffca1589d"
+  integrity sha512-o4FZ1XbndcgeWNb8Wh0y+Hgf73CjmyOQowUSaqQCtgIIdS+XliSBSOwCl330wER+I6CGYE96hT27bHBPmzX2Gg==
+  dependencies:
+    "@fortawesome/fontawesome-common-types" "^0.3.0"
+
 "@nodelib/fs.scandir@2.1.5":
   version "2.1.5"
   resolved "https://registry.yarnpkg.com/@nodelib/fs.scandir/-/fs.scandir-2.1.5.tgz#7619c2eb21b25483f6d167548b4cfd5a7488c3d5"
@@ -51,6 +70,18 @@
   version "2.0.1"
   resolved "https://registry.yarnpkg.com/@tsconfig/svelte/-/svelte-2.0.1.tgz#0e8d7caa693e9b2afce5e622c0475bb0fd89c12c"
   integrity sha512-aqkICXbM1oX5FfgZd2qSSAGdyo/NRxjWCamxoyi3T8iVQnzGge19HhDYzZ6NrVOW7bhcWNSq9XexWFtMzbB24A==
+
+"@types/chart.js@^2.9.35":
+  version "2.9.35"
+  resolved "https://registry.yarnpkg.com/@types/chart.js/-/chart.js-2.9.35.tgz#10ddee097ab9320f8eabd8a31017fda3644d9218"
+  integrity sha512-MWx/zZlh4wHBbM4Tm4YsZyYGb1/LkTiFLFwX/FXb0EJCvXX2xWTRHwlJ2RAAEXWxLrOdaAWP8vFtJXny+4CpEw==
+  dependencies:
+    moment "^2.10.2"
+
+"@types/luxon@^2.0.9":
+  version "2.0.9"
+  resolved "https://registry.yarnpkg.com/@types/luxon/-/luxon-2.0.9.tgz#782a0edfa6d699191292c13168bd496cd66b87c6"
+  integrity sha512-ZuzIc7aN+i2ZDMWIiSmMdubR9EMMSTdEzF6R+FckP4p6xdnOYKqknTo/k+xXQvciSXlNGIwA4OPU5X7JIFzYdA==
 
 "@types/node@*":
   version "17.0.21"
@@ -143,6 +174,16 @@ callsites@^3.0.0:
   version "3.1.0"
   resolved "https://registry.yarnpkg.com/callsites/-/callsites-3.1.0.tgz#b3630abd8943432f54b3f0519238e33cd7df2f73"
   integrity sha512-P8BjAsXvZS+VIDUI11hHCQEv74YT67YUi5JJFNWIqL235sBmjX4+qx9Muvls5ivyNENctx46xQLQ3aTuE7ssaQ==
+
+chart.js@^3.5.0:
+  version "3.7.1"
+  resolved "https://registry.yarnpkg.com/chart.js/-/chart.js-3.7.1.tgz#0516f690c6a8680c6c707e31a4c1807a6f400ada"
+  integrity sha512-8knRegQLFnPQAheZV8MjxIXc5gQEfDFD897BJgv/klO/vtIyFFmgMXrNfgrXpbTr/XbTturxRgxIXx/Y+ASJBA==
+
+chartjs-adapter-luxon@^1.1.0:
+  version "1.1.0"
+  resolved "https://registry.yarnpkg.com/chartjs-adapter-luxon/-/chartjs-adapter-luxon-1.1.0.tgz#0a0d9213db5de0ad3285fae896b4c4b74db9007b"
+  integrity sha512-CS+xBWEyXYVLBZ3dSY/MwlSXhz8er4JjkApazY84ft/++oOLsmkt6TaXBCsUFudum7QdoYmpxiL/gSp20+emkw==
 
 "chokidar@>=3.0.0 <4.0.0", chokidar@^3.4.1:
   version "3.5.3"
@@ -430,6 +471,11 @@ inherits@2, inherits@^2.0.1:
   resolved "https://registry.yarnpkg.com/inherits/-/inherits-2.0.4.tgz#0fa2c64f932917c3433a0ded55363aae37416b7c"
   integrity sha512-k/vGaX4/Yla3WzyMCvTQOXYeIHvqOKtnqBduzTHpzpQZzAskKMhZ2K+EnBiSM9zGSoIFeMpXKxa4dYeZIQqewQ==
 
+install@^0.13.0:
+  version "0.13.0"
+  resolved "https://registry.yarnpkg.com/install/-/install-0.13.0.tgz#6af6e9da9dd0987de2ab420f78e60d9c17260776"
+  integrity sha512-zDml/jzr2PKU9I8J/xyZBQn8rPCAY//UOYNmR01XwNwyfhEWObo2SWfSl1+0tm1u6PhxLwDnfsT/6jB7OUxqFA==
+
 is-binary-path@~2.1.0:
   version "2.1.0"
   resolved "https://registry.yarnpkg.com/is-binary-path/-/is-binary-path-2.1.0.tgz#ea1f7f3b80f064236e83470f86c09c254fb45b09"
@@ -490,6 +536,11 @@ lower-case@^2.0.2:
   dependencies:
     tslib "^2.0.3"
 
+luxon@^2.3.1:
+  version "2.3.1"
+  resolved "https://registry.yarnpkg.com/luxon/-/luxon-2.3.1.tgz#f276b1b53fd9a740a60e666a541a7f6dbed4155a"
+  integrity sha512-I8vnjOmhXsMSlNMZlMkSOvgrxKJl0uOsEzdGgGNZuZPaS9KlefpE9KV95QFftlJSC+1UyCC9/I69R02cz/zcCA==
+
 magic-string@^0.25.7:
   version "0.25.7"
   resolved "https://registry.yarnpkg.com/magic-string/-/magic-string-0.25.7.tgz#3f497d6fd34c669c6798dcb821f2ef31f5445051"
@@ -538,6 +589,11 @@ mkdirp@^0.5.1:
   integrity sha512-NKmAlESf6jMGym1++R0Ra7wvhV+wFW63FaSOFPwRahvea0gMUcGUhVeAg/0BC0wiv9ih5NYPB1Wn1UEI1/L+xQ==
   dependencies:
     minimist "^1.2.5"
+
+moment@^2.10.2:
+  version "2.29.1"
+  resolved "https://registry.yarnpkg.com/moment/-/moment-2.29.1.tgz#b2be769fa31940be9eeea6469c075e35006fa3d3"
+  integrity sha512-kHmoybcPV8Sqy59DwNDY3Jefr64lK/by/da0ViFcuA4DH0vQg5Q6Ze5VimxkfQNSC+Mls/Kx53s7TjP1RhFEDQ==
 
 mri@^1.1.0:
   version "1.2.0"
@@ -748,6 +804,13 @@ supports-preserve-symlinks-flag@^1.0.0:
   resolved "https://registry.yarnpkg.com/supports-preserve-symlinks-flag/-/supports-preserve-symlinks-flag-1.0.0.tgz#6eda4bd344a3c94aea376d4cc31bc77311039e09"
   integrity sha512-ot0WnXS9fgdkgIcePe6RHNk1WA8+muPa6cSjeR3V8K27q9BB1rTE3R1p7Hv0z1ZyAc8s6Vvv8DIyWf681MAt0w==
 
+svelte-chartjs@^1.1.4:
+  version "1.1.4"
+  resolved "https://registry.yarnpkg.com/svelte-chartjs/-/svelte-chartjs-1.1.4.tgz#468868aec8a2469ba3480628f77c81ae992ac2de"
+  integrity sha512-G+G3h1yDFKNTamwq1iDSK1nthStVpEKaCh8K17cUlMPRX1bFF14sK2kWNv0tPj+OGWDTJgDM3X18EU0o3/kH5Q==
+  dependencies:
+    chart.js "^3.5.0"
+
 svelte-check@^2.2.7:
   version "2.4.5"
   resolved "https://registry.yarnpkg.com/svelte-check/-/svelte-check-2.4.5.tgz#a2001993034d495118980bd95577fb3e7980661a"
@@ -762,6 +825,11 @@ svelte-check@^2.2.7:
     source-map "^0.7.3"
     svelte-preprocess "^4.0.0"
     typescript "*"
+
+svelte-fa@^2.4.0:
+  version "2.4.0"
+  resolved "https://registry.yarnpkg.com/svelte-fa/-/svelte-fa-2.4.0.tgz#d94285151a975b92b29efec6ec9e2c11c57780ef"
+  integrity sha512-0bnbMGbsE1LUnlioDcf27tl2O8kjuXlTXMXzIxC7LoIOWmqn0D+zd539HfLiQbdLuOHGTaynwN9V+4ehhEu1Jw==
 
 svelte-hmr@^0.14.9:
   version "0.14.9"

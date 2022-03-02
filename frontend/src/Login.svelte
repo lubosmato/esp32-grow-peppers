@@ -74,41 +74,30 @@
 
 <style lang="sass">
 @import "./sass/variables"
+@import "./sass/helpers"
 
 .login-page
-  background-image: url("login-bg.jpg")
-  background-size: cover
-  background-repeat: no-repeat
-  background-position: center
-  width: 100vw
-  height: 100vh
+  width: 100%
+  height: 100%
 
   display: flex
   flex-direction: row
   align-items: center
   justify-content: center
 
-  .form
+  form
+    @extend %panel
+
+    width: min(100%, 600px)
     display: flex
     flex-direction: column
-    
-    background: rgba($light-color, 0.1)
-    box-shadow: 0 8px 32px 0 rgba($light-color, 0.1)
-    backdrop-filter: blur(14px)
-    -webkit-backdrop-filter: blur(6.5px)
-    border-radius: $border-radius
-    border: 1px solid rgba($light-color, 0.18)
     
     margin: 2rem
     padding: 2rem
     
-    @media only screen and (max-width: $breakpoint-mobile)
+    @media only screen and (max-width: $breakpoint-mobile) 
       margin: 0.5rem
       padding: 1rem
-
-    width: min(100%, 600px)
-
-    color: white
 
     h2
       text-align: center
@@ -133,13 +122,6 @@
         margin: 1rem
 
       .error
-        background: rgba($danger-color, 0.4)
-        box-shadow: 0 8px 32px 0 rgba($danger-color, 0.3)
-        backdrop-filter: blur(14px)
-        -webkit-backdrop-filter: blur(6.5px)
-        border-radius: $border-radius
-        border: 1px solid rgba($danger-color, 0.6)
-        padding: 1rem
-        margin: 0 0 0.8rem 0
+        @include buble($danger-color)
 
 </style>

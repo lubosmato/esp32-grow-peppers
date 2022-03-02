@@ -1,5 +1,19 @@
 @import "./variables"
 
+html, body
+  width: 100vw
+  height: 100vh
+  overflow: auto
+
+  background-image: url("/bg.jpg")
+  background-size: cover
+  background-repeat: no-repeat
+  background-position: center
+
+#app
+  width: 100%
+  height: 100%
+
 body
   -webkit-font-smoothing: antialiased
   -moz-osx-font-smoothing: grayscale
@@ -7,6 +21,7 @@ body
   font-size: 16px
   color: $light-color
   background-color: $dark-color
+  line-height: 1.3em
 
   h1, h2, h3, h4, h5, h6
     padding: 0.75em 0 0.5em 0
@@ -21,6 +36,12 @@ body
     font-size: 1.5em
   h4
     font-size: 1em
+
+  strong
+    font-weight: 700
+
+  i
+    font-style: italic
 
 input[type="email"], input[type="password"]
   color: $light-color
@@ -51,6 +72,8 @@ input[type="email"], input[type="password"]
     color: rgb($light-color, 0.3)
 
 button
+  $button-opacity: 0.3
+
   cursor: pointer
   color: $light-color
   margin: 0.5em 0
@@ -58,24 +81,195 @@ button
   font-size: 1rem
   font-family: inherit
 
-  background: rgba($primary-color, 0.1)
-  box-shadow: 0 8px 32px 0 rgba($primary-color, 0.1)
+  background: rgba($primary-color, $button-opacity)
+  box-shadow: 0 8px 32px 0 rgba($primary-color, $button-opacity)
   backdrop-filter: blur(14px)
   -webkit-backdrop-filter: blur(6.5px)
   border-radius: $border-radius
-  border: 1px solid rgba($primary-color, 0.18)
+  border: 1px solid rgba($primary-color, $button-opacity + 0.08)
 
   transition: box-shadow 0.2s, background 0.1s
 
-  &:hover
+  &:hover:not(:disabled)
     border: 1px solid rgba($primary-color, 0.2)
-    box-shadow: 0 8px 32px 0 rgba($primary-color, 0.1), 0 0 6px 3px rgba($primary-color, 0.1)
+    box-shadow: 0 8px 32px 0 rgba($primary-color, $button-opacity), 0 0 6px 3px rgba($primary-color, $button-opacity)
     background: rgba($primary-color, 0.2)
 
-  &:active
+  &:active:not(:disabled)
     background: rgba($primary-color, 0.0)
 
-  &:focus
+  &:focus:not(:disabled)
     outline: none
     border: 1px solid rgba($primary-color, 0.4)
-    box-shadow: 0 8px 32px 0 rgba($primary-color, 0.1), 0 0 6px 3px rgba($primary-color, 0.2)
+    box-shadow: 0 8px 32px 0 rgba($primary-color, $button-opacity), 0 0 6px 3px rgba($primary-color, $button-opacity + 0.1)
+
+  &:disabled
+    cursor: not-allowed
+
+// Styling Cross-Browser Compatible Range Inputs with Sass
+// Github: https://github.com/darlanrod/input-range-sass
+// Author: Darlan Rod https://github.com/darlanrod
+// Version 1.5.2
+// MIT License
+
+$thumb-radius: 16px !default
+$thumb-height: 32px !default
+$thumb-width: 32px !default
+$thumb-shadow-size: 4px !default
+$thumb-shadow-blur: 4px !default
+$thumb-shadow-color: rgba(255, 255, 255, .2) !default
+$thumb-border-width: 1px !default
+$thumb-border-color: rgba(255, 255, 255, 0.3) !default
+
+$track-width: 100% !default
+$track-height: 16px !default
+$track-shadow-size: 1px !default
+$track-shadow-blur: 1px !default
+$track-shadow-color: rgba(255, 255, 255, .2) !default
+$track-border-width: 1px !default
+$track-border-color: rgba(255, 255, 255, 0.5) !default
+
+$track-radius: 5px !default
+$contrast: 5% !default
+
+@mixin shadow($shadow-size, $shadow-blur, $shadow-color)
+  box-shadow: $shadow-size $shadow-size $shadow-blur $shadow-color, 0 0 $shadow-size lighten($shadow-color, 5%)
+
+@mixin track
+  cursor: default
+  height: $track-height
+  transition: all .2s ease
+  width: $track-width
+  background: rgba($light-color, 0.4)
+  backdrop-filter: blur($panel-blur)
+  -webkit-backdrop-filter: blur($panel-blur)
+  box-shadow: 0 8px 32px 0 rgba($light-color, 0.3)
+  border: 1px solid rgba($light-color, 0.6)
+
+@mixin thumb
+  @include shadow($thumb-shadow-size, $thumb-shadow-blur, $thumb-shadow-color)
+  // background: $thumb-color
+  border: $thumb-border-width solid $thumb-border-color
+  border-radius: $thumb-radius
+  box-sizing: border-box
+  cursor: default
+  height: $thumb-height
+  width: $thumb-width
+  background: rgba($light-color, 0.7)
+  backdrop-filter: blur($panel-blur)
+  -webkit-backdrop-filter: blur($panel-blur)
+  box-shadow: 0 8px 32px 0 rgba($light-color, 0.3)
+  border: 1px solid rgba($light-color, 0.6)
+
+[type='range']
+  -webkit-appearance: none
+  background: transparent
+  margin: $thumb-height * 0.5 0
+  width: $track-width
+
+  &::-moz-focus-outer
+    border: 0
+
+  &:focus
+    outline: 0
+
+    &::-webkit-slider-runnable-track
+      // background: lighten($track-color, $contrast)
+
+    &::-ms-fill-lower
+      // background: $track-color
+
+    &::-ms-fill-upper
+      // background: lighten($track-color, $contrast)
+
+  &::-webkit-slider-runnable-track
+    @include track
+    @include shadow($track-shadow-size, $track-shadow-blur, $track-shadow-color)
+    // background: $track-color
+    border: $track-border-width solid $track-border-color
+    border-radius: $track-radius
+
+  &::-webkit-slider-thumb
+    @include thumb
+    -webkit-appearance: none
+    margin-top: ((-$track-border-width * 2 + $track-height) * 0.5 - $thumb-height * 0.5)
+
+  &::-moz-range-track
+    @include shadow($track-shadow-size, $track-shadow-blur, $track-shadow-color)
+    @include track
+    // background: $track-color
+    border: $track-border-width solid $track-border-color
+    border-radius: $track-radius
+    height: $track-height * 0.5
+
+  &::-moz-range-thumb
+    @include thumb
+
+  &::-ms-track
+    @include track
+    background: transparent
+    border-color: transparent
+    border-width: ($thumb-height * 0.5) 0
+    color: transparent
+
+  &::-ms-fill-lower
+    @include shadow($track-shadow-size, $track-shadow-blur, $track-shadow-color)
+    // background: $ie-bottom-track-color
+    border: $track-border-width solid $track-border-color
+    border-radius: ($track-radius * 2)
+
+  &::-ms-fill-upper
+    @include shadow($track-shadow-size, $track-shadow-blur, $track-shadow-color)
+    // background: $track-color
+    border: $track-border-width solid $track-border-color
+    border-radius: ($track-radius * 2)
+
+  &::-ms-thumb
+    @include thumb
+    margin-top: $track-height * 0.25
+
+  &:disabled
+    &::-webkit-slider-thumb,
+    &::-moz-range-thumb,
+    &::-ms-thumb,
+    &::-webkit-slider-runnable-track,
+    &::-ms-fill-lower,
+    &::-ms-fill-upper
+      cursor: not-allowed
+
+input[type="checkbox"]
+  color: $light-color
+
+  -webkit-appearance: none
+  appearance: none
+  background-color: rgba($light-color, $panel-opacity)
+  margin: 0
+
+  font: inherit
+  color: currentColor
+  width: 1.15em
+  height: 1.15em
+  border: 1px solid rgba($light-color, $border-opacity)
+  border-radius: 0.15em
+  transform: translateY(-0.075em)
+
+  display: grid
+  place-content: center
+
+input[type="checkbox"]::before
+  content: ""
+  width: 0.65em
+  height: 0.65em
+  clip-path: polygon(14% 44%, 0 65%, 50% 100%, 100% 16%, 80% 0%, 43% 62%)
+  transform: scale(0)
+  transform-origin: bottom left
+  transition: 120ms transform ease-in-out
+  box-shadow: inset 1em 1em var(--form-control-color)
+  background-color: $light-color
+
+input[type="checkbox"]:checked::before
+  transform: scale(1)
+
+input[type="checkbox"]:focus
+  outline: max(2px, 0.15em) solid rgba($light-color, $border-opacity)
+  outline-offset: max(2px, 0.15em)

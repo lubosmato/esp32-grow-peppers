@@ -1,4 +1,28 @@
-import { user, User } from "./store";
+import { user } from "./store"
+
+const { fetch: originalFetch } = window
+
+window.fetch = async (...args) => {
+  let [resource, config] = args
+
+  let response: Response | null = null
+  try {
+    response = await originalFetch(resource, config)
+    return response
+  } finally {
+    if (response.status === 401) {
+      user.set(null)
+    }
+  }
+}
+
+export interface User {
+  id: number
+  name: string
+  email: string
+  plantId: string
+  camId: string
+}
 
 export function useLogin() {
   return async (email: string, password: string) => {
@@ -13,6 +37,7 @@ export function useLogin() {
     if (response.status !== 200) throw new Error(responseJson.error)
     user.set(responseJson.user)
     registerWorker()
+
   }
 }
 
