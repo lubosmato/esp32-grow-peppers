@@ -1,13 +1,20 @@
 import { open, Database } from "sqlite"
+import { migrate } from "./migrateDb"
+import fs from "fs"
+
+export const dbPath = "db/plants.db"
 
 let database: Database | null = null
 
-async function createDatabase() {
-  return await open("db/plants.db")
+async function createDatabase(): Promise<Database> {
+  if (!fs.existsSync(dbPath)) {
+    return await migrate()
+  }
+  return await open(dbPath)
 }
 
 export default async function getDb() {
-  if (!database) 
+  if (!database)
     database = await createDatabase()
   return database
 }

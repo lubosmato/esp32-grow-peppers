@@ -1,34 +1,29 @@
-POST http://127.0.0.1:3001/api/v1/auth
+POST http://127.0.0.1:8080/api/v1/auth
 Accept: application/json
 Content-Type: application/json
 
-{"email": "lubos.matejcik@gmail.com", "password": "12345678"}
+{"email": "my@email.com", "password": "12345678"}
 
 ###
 
-GET http://127.0.0.1:3001/api/v1/user
-Accept: application/json
-Content-Type: application/json
-
-###
-
-GET http://127.0.0.1:3001/api/v1/logout
+GET http://127.0.0.1:8080/api/v1/user
 Accept: application/json
 Content-Type: application/json
 
 ###
-POST http://127.0.0.1:3001/api/v1/subscribe
+
+GET http://127.0.0.1:8080/api/v1/logout
+Accept: application/json
+Content-Type: application/json
+
+###
+POST http://127.0.0.1:8080/api/v1/subscribe
 Accept: application/json
 Content-Type: application/json
 
 {
   "subscription": {
-    "endpoint": "https://fcm.googleapis.com/fcm/send/c3ROFYgiVSw:APA91bESAmhq3CWHhaBUi1ZOVvVJYVZz7aeJ7UVnV5p2-0JZ3jGcwYl_cy61MfLfv-uaXTcssRDJ3qd8EsKaFBTOcZGBIYP4CmiMsBgdXNXEcv8n0j-AcXHpj-e6bs5SibwRZN9hAaFt",
-    "expirationTime": null,
-    "keys": {
-        "p256dh": "BHBKVF5hL18X18DDgeABJ2Ei0AW8VQ71Jv4eCSle9izEcsRjbDutkKx0K8Z0iBHCUUgAmXjPMX4z-R9nVaHfH8w",
-        "auth": "1qAvTqlRdHaqgc6hKj3rHQ"
-    }
+    "...": "..."
   }
 }
 

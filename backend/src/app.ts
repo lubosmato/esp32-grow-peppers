@@ -14,7 +14,7 @@ import { useUser } from "./api/user"
 import { useSubscription } from "./api/subscription"
 import useWs from "./api/ws"
 import { routeMqttToWebsocket, useDevices } from "./api/devices"
-import { getSamples, useDataStoring } from "./chartData"
+import { useDataStoring } from "./chartData"
 
 declare module "express-session" {
   interface SessionData {
@@ -22,14 +22,10 @@ declare module "express-session" {
   }
 }
 
-if (!process.env.APP_SECRET) throw new Error("Missing env variable APP_SECRET")
-
-const APP_SECRET = process.env.APP_SECRET
-
 async function runServer() {
   const db = await getDb()
   const sessionParser = session({
-    secret: APP_SECRET,
+    secret: process.env.APP_SECRET,
     resave: true,
     saveUninitialized: true,
   })
@@ -39,7 +35,8 @@ async function runServer() {
   app.use(helmet())
   app.use(bodyParser.json())
   app.use(cors())
-  app.use(morgan("combined"))
+  if (process.env?.DEV)
+    app.use(morgan("combined"))
   app.use(sessionParser)
 
   const wsEmitter = new EventEmitter()
@@ -52,7 +49,7 @@ async function runServer() {
 
   routeMqttToWebsocket(wsEmitter)
 
-  const port = 3001
+  const port = 8080
   app.listen(port, () => {
     console.log(`listening on port ${port}`)
   })

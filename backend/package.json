@@ -4,9 +4,7 @@
   "private": true,
   "scripts": {
     "dev": "nodemon --watch \"src/**\" --ext \"ts,json\" --ignore \"src/**/*.spec.ts\" --exec \"ts-node src/app.ts\"",
-    "test": "nodemon --watch \"src/**\" --ext \"ts,json\" --ignore \"src/**/*.spec.ts\" --exec \"ts-node src/circularBuffer.ts\"",
-    "db:migrate": "ts-node src/migrateDb.ts"
-    
+    "test": "nodemon --watch \"src/**\" --ext \"ts,json\" --ignore \"src/**/*.spec.ts\" --exec \"ts-node src/circularBuffer.ts\""
   },
   "dependencies": {
     "@types/express-session": "^1.17.4",
