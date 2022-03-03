@@ -16,14 +16,21 @@
   $: {
     message = "";
 
-    if (waterData.length <= 5) {
+    const numberOfUsedSamples = 6 * 5; // last 5 hours of data
+
+    if (waterData.length <= numberOfUsedSamples) {
       message = MESSAGE_UNKNOWN;
     } else {
-      const offsetFrom = waterData[0].time;
-      const xData = waterData.map((s) =>
+      const selectedWaterData = waterData.slice(
+        waterData.length - numberOfUsedSamples,
+        waterData.length
+      );
+
+      const offsetFrom = selectedWaterData[0].time;
+      const xData = selectedWaterData.map((s) =>
         Math.floor((s.time - offsetFrom) / 1000)
       );
-      const yData = waterData.map((sample) => Math.round(sample.value));
+      const yData = selectedWaterData.map((sample) => Math.round(sample.value));
 
       const meanX = xData.reduce((acc, x) => acc + x) / xData.length;
       const meanY = yData.reduce((acc, y) => acc + y) / yData.length;
@@ -35,12 +42,18 @@
       const k = sumXYError / sumXErrorSquared;
       const q = meanY - k * meanX;
 
-      const prediction = ((LOW_WATER_THRESH - q) / k) * 1000 + offsetFrom;
-      if (!isFinite(prediction) || isNaN(prediction)) {
+      if (k >= 0) {
+        // line is "raising"
         message = MESSAGE_UNKNOWN;
       } else {
-        const predictedDateTime = DateTime.fromMillis(prediction);
-        message = `Plants will be thirsty ${predictedDateTime.toRelative()}`;
+        // line is "falling"
+        const prediction = ((LOW_WATER_THRESH - q) / k) * 1000 + offsetFrom;
+        if (!isFinite(prediction) || isNaN(prediction)) {
+          message = MESSAGE_UNKNOWN;
+        } else {
+          const predictedDateTime = DateTime.fromMillis(prediction);
+          message = `Plants will be thirsty ${predictedDateTime.toRelative()}`;
+        }
       }
     }
   }

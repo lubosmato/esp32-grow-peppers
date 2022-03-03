@@ -10,7 +10,7 @@ export default defineConfig({
   server: {
     proxy: {
       "/api": {
-        target: "http://localhost:3001/",
+        target: "https://grow.lubosmatejcik.cz/",
         changeOrigin: true,
         ws: true,
       }
