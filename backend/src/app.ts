@@ -22,10 +22,12 @@ declare module "express-session" {
   }
 }
 
+if (!process.env.APP_SECRET) throw new Error("Missing env variable APP_SECRET")
+
 async function runServer() {
   const db = await getDb()
   const sessionParser = session({
-    secret: process.env.APP_SECRET,
+    secret: process.env.APP_SECRET ?? "dummy-secret",
     resave: true,
     saveUninitialized: true,
   })
