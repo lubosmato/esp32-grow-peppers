@@ -10,13 +10,14 @@
   $: yData = waterData.map((sample) => sample.value.toFixed(0));
 
   const LOW_WATER_THRESH = 10;
+  const MESSAGE_UNKNOWN = "Hard to guess when plants will be thirsty 🤷‍♂️";
   let message = "";
 
   $: {
     message = "";
 
     if (waterData.length <= 5) {
-      message = "Hard to guess when plants will be thirsty 🤷‍♂️";
+      message = MESSAGE_UNKNOWN;
     } else {
       const offsetFrom = waterData[0].time;
       const xData = waterData.map((s) =>
@@ -35,9 +36,12 @@
       const q = meanY - k * meanX;
 
       const prediction = ((LOW_WATER_THRESH - q) / k) * 1000 + offsetFrom;
-      const predictedDateTime = DateTime.fromMillis(prediction);
-
-      message = `Plants will be thirsty ${predictedDateTime.toRelative()}`;
+      if (!isFinite(prediction) || isNaN(prediction)) {
+        message = MESSAGE_UNKNOWN;
+      } else {
+        const predictedDateTime = DateTime.fromMillis(prediction);
+        message = `Plants will be thirsty ${predictedDateTime.toRelative()}`;
+      }
     }
   }
 </script>
