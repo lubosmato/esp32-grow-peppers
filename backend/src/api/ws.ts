@@ -49,8 +49,6 @@ export default function useWs(app: Application, sessionParser: RequestHandler, w
               ws.send(JSON.stringify(historyMessage))
             }
 
-            await sendHistory(user.plantId)
-
             // subscribe to plant info on websocket
             // NOTE I do realize that this is absolutely not a scalable solution
             const sendPlantInfo = (plant: Plant) => {
@@ -73,8 +71,11 @@ export default function useWs(app: Application, sessionParser: RequestHandler, w
               ws.send(JSON.stringify(info))
             }
 
+            await sendHistory(user.plantId)
+
             wsEmitter.addListener("plant", sendPlantInfo)
             wsEmitter.addListener("camera", sendCamInfo)
+            wsEmitter.emit("connect", user.plantId, user.camId)
 
             const sendHistoryInterval = setInterval(async () => {
               await sendHistory(user.plantId)

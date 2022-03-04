@@ -1,7 +1,5 @@
-
 import EventEmitter from "events"
 import { Application } from "express"
-import throttle from "lodash.throttle"
 import { CamTopic, PlantTopic, setFlashlight, setLight, subscribeToCam, subscribeToPlant } from "../mqtt"
 
 export interface Plant {
@@ -19,43 +17,69 @@ export interface Camera {
   isFlashlightEnabled: boolean | null
 }
 
+function compareAndSet<T, K extends keyof T>(obj: T, key: K, newValue: T[K]) {
+  const hasChanged = obj[key] !== newValue
+  obj[key] = newValue
+  return hasChanged
+}
+
 // NOTE I do realize that this is absolutely not a scalable solution
 export function routeMqttToWebsocket(wsEmitter: EventEmitter) {
   const plantCache: Map<string, Plant> = new Map()
   const cameraCache: Map<string, Camera> = new Map()
 
-  const emitWsPlant = throttle((plant: Plant) => wsEmitter.emit("plant", plant), 1000)
-  const emitWsCamera = throttle((camera: Camera) => wsEmitter.emit("camera", camera), 1000)
+  const emitWsPlant = (plant: Plant) => wsEmitter.emit("plant", plant)
+  const emitWsCamera = (camera: Camera) => wsEmitter.emit("camera", camera)
+
+  wsEmitter.addListener("connect", (plantId: string, camId: string) => {
+    let plant = plantCache.get(plantId)
+    let cam = cameraCache.get(camId)
+
+    if (plant) {
+      emitWsPlant(plant)
+    }
+    if (cam) {
+      emitWsCamera(cam)
+    }
+  })
 
   subscribeToPlant((plantId, topic, value) => {
     let plant = plantCache.get(plantId)
     if (!plant) plant = { id: plantId, temperature: null, water: null, light: null, isOnline: null }
 
-    if (topic !== PlantTopic.Disconnected) plant.isOnline = true
+    let hasChanged = false
 
-    if (topic === PlantTopic.Connected) plant.isOnline = true
-    if (topic === PlantTopic.Disconnected) plant.isOnline = false
-    if (topic === PlantTopic.Light) plant.light = parseInt(value)
-    if (topic === PlantTopic.Temperature) plant.temperature = parseFloat(value)
-    if (topic === PlantTopic.Water) plant.water = parseInt(value)
+    if (topic !== PlantTopic.Disconnected) hasChanged ||= compareAndSet(plant, "isOnline", true)
+
+    if (topic === PlantTopic.Connected) hasChanged ||= compareAndSet(plant, "isOnline", true)
+    if (topic === PlantTopic.Disconnected) hasChanged ||= compareAndSet(plant, "isOnline", false)
+    if (topic === PlantTopic.Light) hasChanged ||= compareAndSet(plant, "light", parseInt(value))
+    if (topic === PlantTopic.Temperature) hasChanged ||= compareAndSet(plant, "temperature", parseFloat(value))
+    if (topic === PlantTopic.Water) hasChanged ||= compareAndSet(plant, "water", parseInt(value))
 
     plantCache.set(plantId, plant)
-    emitWsPlant(plant)
+    if (hasChanged) {
+      emitWsPlant(plant)
+    }
   })
 
   subscribeToCam((camId, topic, value) => {
     let cam = cameraCache.get(camId)
     if (!cam) cam = { id: camId, isOnline: null, imageDate: null, isFlashlightEnabled: null }
 
-    if (topic !== CamTopic.Disconnected) cam.isOnline = true
+    let hasChanged = false
 
-    if (topic === CamTopic.Connected) cam.isOnline = true
-    if (topic === CamTopic.Disconnected) cam.isOnline = false
-    if (topic === CamTopic.Flashlight) cam.isFlashlightEnabled = value === "true"
-    if (topic === CamTopic.ImageDateTime) cam.imageDate = new Date(value)
+    if (topic !== CamTopic.Disconnected) hasChanged ||= compareAndSet(cam, "isOnline", true)
+
+    if (topic === CamTopic.Connected) hasChanged ||= compareAndSet(cam, "isOnline", true)
+    if (topic === CamTopic.Disconnected) hasChanged ||= compareAndSet(cam, "isOnline", false)
+    if (topic === CamTopic.Flashlight) hasChanged ||= compareAndSet(cam, "isFlashlightEnabled", value === "true")
+    if (topic === CamTopic.ImageDateTime) hasChanged ||= compareAndSet(cam, "imageDate", new Date(value))
 
     cameraCache.set(camId, cam)
-    emitWsCamera(cam)
+    if (hasChanged) {
+      emitWsCamera(cam)
+    }
   })
 }
 
