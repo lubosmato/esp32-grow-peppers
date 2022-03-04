@@ -77,6 +77,9 @@
         backgroundColor: color,
         borderColor: color,
         data: yData,
+        pointRadius: 0,
+        borderWidth: 2,
+        lineTension: 1,
       },
     ],
   };
