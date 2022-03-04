@@ -42,6 +42,7 @@ struct App {
   es::Config::Value<float> waterCalibrationHigh = plantConfig.get<float>("high", 1.0f);
   es::Config::Value<float> waterCalibrationLow = plantConfig.get<float>("low", 2.0f);
   es::Config::Value<std::string> timeZone = plantConfig.get<std::string>("timeZone", "CET-1CEST,M3.5.0/2,M10.5.0/3");
+  es::Config::Value<std::string> schedule = plantConfig.get<std::string>("schedule", "");
 
   es::Wifi wifi{};
   std::unique_ptr<es::Mqtt> mqtt{};
@@ -96,6 +97,8 @@ struct App {
     if (actionButton.get() == Button::State::Pressed) {
       goToSafeMode();
     }
+
+    scheduler.setSchedule(*schedule);
 
     time.setTimeZone(*timeZone);
 
@@ -187,6 +190,7 @@ struct App {
 
     subs.emplace_back(mqtt->subscribe("light/schedule", es::Mqtt::Qos::Qos0, [this](std::string_view value) {
       if (!value.empty()) {
+        schedule = std::string{value};
         scheduler.setSchedule(value);
       }
     }));
