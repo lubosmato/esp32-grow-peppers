@@ -8,9 +8,16 @@ export default defineConfig({
     preprocess: sveltePreprocess()
   })],
   server: {
+    // proxy: {
+    //   "/api": {
+    //     target: "https://grow.lubosmatejcik.cz/",
+    //     changeOrigin: true,
+    //     ws: true,
+    //   }
+    // }
     proxy: {
       "/api": {
-        target: "https://grow.lubosmatejcik.cz/",
+        target: "http://localhost:8080/",
         changeOrigin: true,
         ws: true,
       }

@@ -6,13 +6,13 @@
   import User from "./lib/components/User.svelte";
   import Thermometer from "./lib/components/Thermometer.svelte";
   import Light from "./lib/components/Light.svelte";
-  import { onDestroy, onMount } from "svelte";
 
   export let path;
 </script>
 
 <Route {path} let:params let:location let:navigate>
   <PrivateRouteGuard>
+    <h2 class="dummy-h2" />
     <div class="grid">
       <div class="user">
         <User />
@@ -37,6 +37,9 @@
 @import "./sass/helpers"
 
 $grid-gap: 1rem
+
+.dummy-h2
+  display: none
 
 .grid
   height: calc(100% - $grid-gap * 2)

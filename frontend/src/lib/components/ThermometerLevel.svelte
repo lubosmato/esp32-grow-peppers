@@ -10,7 +10,7 @@
   id="svg1971"
   version="1.1"
   viewBox="0 -0.5 23.56723 55.7"
-  height="auto"
+  height="100%"
   width="100%"
 >
   <defs id="defs7313">

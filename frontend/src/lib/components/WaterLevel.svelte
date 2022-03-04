@@ -7,7 +7,7 @@
   $: transformY = -130 * (clamp(amount, 0, 100) / 100);
 </script>
 
-<svg id="svg66" viewBox="0 0 276 416" version="1.1" width="100%" height="auto">
+<svg id="svg66" viewBox="0 0 276 416" version="1.1" width="100%" height="100%">
   <defs id="defs70">
     <mask maskUnits="userSpaceOnUse" id="water-mask">
       <path

@@ -34,7 +34,7 @@ function startStreamingRealTimeData() {
   }
 
   ws.onclose = (e) => {
-    setTimeout(() => ws = null, 0)
+    location.reload()
   }
 
   ws.onmessage = (event) => {
