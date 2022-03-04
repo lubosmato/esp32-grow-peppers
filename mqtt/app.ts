@@ -7,8 +7,10 @@ import createAedes from "aedes"
 import accounts, { hashPassword } from "./accounts"
 import logger from "./log"
 import tls from "tls"
+import memory from 'aedes-persistence'
 
 const aedes = createAedes({
+  persistence: memory(),
   authenticate: (client, username, password, callback) => {
     const isSuccess = accounts[username] && accounts[username] === hashPassword(password.toString("utf8"))
     if (!isSuccess) {
@@ -25,7 +27,6 @@ const aedes = createAedes({
 const log = logger("mqtt")
 
 const mqttsPort = 8883
-const httpPort = 80
 
 const options = {
   key: fs.readFileSync("./certs/live/grow.lubosmatejcik.cz/privkey.pem"),
