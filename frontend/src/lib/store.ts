@@ -83,6 +83,6 @@ user.subscribe((u) => {
     stopStreamingRealTimeData()
 })
 
-export const plant = writable<Plant>({ id: "", isOnline: null, light: null, temperature: null, water: null })
+export const plant = writable<Plant>({ id: "", isOnline: null, light: null, fan: null, temperature: null, water: null })
 export const camera = writable<Camera>({ id: "", imageDate: null, isFlashlightEnabled: null, isOnline: null })
 export const history = writable<PureSample[]>([])

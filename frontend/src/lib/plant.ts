@@ -10,6 +10,7 @@ export interface Plant {
   id: string
   temperature: number | null
   water: number | null
+  fan: number | null
   light: number | null
   isOnline: boolean | null
 }
@@ -23,6 +24,22 @@ export interface Camera {
 
 export function usePlant() {
   return {
+    async setFan(value: number) {
+      const response = await fetch("/api/v1/plants/fan", {
+        method: "post",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ value }),
+      })
+      const responseJson = await response.json()
+      if (response.status !== 200) throw new Error(responseJson.error)
+
+      plant.update((p) => {
+        return { ...p, fan: value }
+      })
+    },
+
     async setLight(value: number) {
       const response = await fetch("/api/v1/plants/light", {
         method: "post",

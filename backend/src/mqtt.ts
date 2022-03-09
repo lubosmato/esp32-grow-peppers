@@ -22,6 +22,10 @@ export async function setLight(plantId: string, value: number) {
   await client.publish(`plants/${plantId}/light/value`, value.toString(), { retain: true })
 }
 
+export async function setFan(plantId: string, value: number) {
+  await client.publish(`plants/${plantId}/fan/1/value`, value.toString(), { retain: true })
+}
+
 export function subscribeToLowWaterEvent(action: (waterAmount: number, plantId: string) => void) {
   const prevWaterAmounts: Map<string, number> = new Map()
 
@@ -106,6 +110,7 @@ export function subscribeToImage(action: (camId: string, image: Buffer, time: Da
 export enum PlantTopic {
   Water = "water/amount",
   Temperature = "temp/0/celsius",
+  Fan = "fan/1/value",
   Light = "light/value",
   Disconnected = "last/will",
   Connected = "connected",

@@ -1,10 +1,11 @@
 import EventEmitter from "events"
 import { Application } from "express"
-import { CamTopic, PlantTopic, setFlashlight, setLight, subscribeToCam, subscribeToPlant } from "../mqtt"
+import { CamTopic, PlantTopic, setFlashlight, setLight, setFan, subscribeToCam, subscribeToPlant } from "../mqtt"
 
 export interface Plant {
   id: string
   temperature: number | null
+  fan: number | null
   water: number | null
   light: number | null
   isOnline: boolean | null
@@ -45,7 +46,7 @@ export function routeMqttToWebsocket(wsEmitter: EventEmitter) {
 
   subscribeToPlant((plantId, topic, value) => {
     let plant = plantCache.get(plantId)
-    if (!plant) plant = { id: plantId, temperature: null, water: null, light: null, isOnline: null }
+    if (!plant) plant = { id: plantId, temperature: null, water: null, fan: null, light: null, isOnline: null }
 
     let hasChanged = false
 
@@ -55,6 +56,7 @@ export function routeMqttToWebsocket(wsEmitter: EventEmitter) {
     if (topic === PlantTopic.Disconnected) hasChanged ||= compareAndSet(plant, "isOnline", false)
     if (topic === PlantTopic.Light) hasChanged ||= compareAndSet(plant, "light", parseInt(value))
     if (topic === PlantTopic.Temperature) hasChanged ||= compareAndSet(plant, "temperature", parseFloat(value))
+    if (topic === PlantTopic.Fan) hasChanged ||= compareAndSet(plant, "fan", parseFloat(value))
     if (topic === PlantTopic.Water) hasChanged ||= compareAndSet(plant, "water", parseInt(value))
 
     plantCache.set(plantId, plant)
@@ -105,6 +107,29 @@ export function useDevices(app: Application) {
       .status(200)
       .json({
         message: "Light value set"
+      })
+  })
+
+  app.post("/api/v1/plants/fan", async function (request, response) {
+    const value: number | null = request.body.value ?? null
+
+    if (value === null) {
+      response
+        .status(400)
+        .json({
+          error: "Missing value",
+        })
+      return
+    }
+
+    if (request.session.user) {
+      setFan(request.session.user.plantId, value)
+    }
+
+    response
+      .status(200)
+      .json({
+        message: "Fan value set"
       })
   })
 

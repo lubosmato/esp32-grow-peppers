@@ -6,19 +6,23 @@
   import User from "./lib/components/User.svelte";
   import Thermometer from "./lib/components/Thermometer.svelte";
   import Light from "./lib/components/Light.svelte";
+  import Fan from "./lib/components/Fan.svelte";
 
   export let path;
 </script>
 
 <Route {path} let:params let:location let:navigate>
   <PrivateRouteGuard>
-    <h2 class="dummy-h2" />
+    <h2 class="dummy-h2">&nbsp;</h2>
     <div class="grid">
       <div class="user">
         <User />
       </div>
       <div class="water">
         <Water />
+      </div>
+      <div class="fan">
+        <Fan />
       </div>
       <div class="thermo">
         <Thermometer />
@@ -47,15 +51,14 @@ $grid-gap: 1rem
 
   display: grid 
   grid-template-columns: repeat(4, minmax(0, 1fr))
-  grid-template-rows: repeat(3, minmax(0, 1fr))
+  grid-template-rows: repeat(4, minmax(0, 1fr))
   gap: $grid-gap
-  // grid-template-areas: ". light thermo thermo" ". . camera camera" ". . camera camera" 
-  grid-template-areas: "water water thermo thermo" "light camera camera camera" "user camera camera camera" 
+  grid-template-areas: "water water thermo thermo" "light camera camera camera" "fan camera camera camera" "user camera camera camera"
 
   @media only screen and (max-width: $breakpoint-desktop)
     grid-template-columns: repeat(3, minmax(0, 1fr))
-    grid-template-rows: repeat(3, minmax(0, 1fr))
-    grid-template-areas: "water thermo thermo" "light camera camera" "user camera camera"
+    grid-template-rows: repeat(4, minmax(0, 1fr))
+    grid-template-areas: "water thermo thermo" "light camera camera" "fan camera camera" "user camera camera"
 
   @media only screen and (max-width: $breakpoint-tablet)
     height: auto
@@ -67,7 +70,7 @@ $grid-gap: 1rem
     height: auto
     grid-template-columns: repeat(1, minmax(0, 1fr))
     grid-template-rows: repeat(4, minmax(0, 1fr))
-    grid-template-areas: "water" "thermo" "light" "camera" "user"
+    grid-template-areas: "water" "thermo" "light" "fan" "camera" "user"
 
   .camera
     width: 100%
