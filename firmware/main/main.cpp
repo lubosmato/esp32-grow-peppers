@@ -42,7 +42,8 @@ struct App {
   es::Config::Value<float> waterCalibrationHigh = plantConfig.get<float>("high", 1.0f);
   es::Config::Value<float> waterCalibrationLow = plantConfig.get<float>("low", 2.0f);
   es::Config::Value<std::string> timeZone = plantConfig.get<std::string>("timeZone", "CET-1CEST,M3.5.0/2,M10.5.0/3");
-  es::Config::Value<std::string> schedule = plantConfig.get<std::string>("schedule", "");
+  es::Config::Value<std::string> lightSchedule = plantConfig.get<std::string>("schedule", "");
+  es::Config::Value<std::string> fanSchedule = plantConfig.get<std::string>("fanSchedule", "");
 
   es::Wifi wifi{};
   std::unique_ptr<es::Mqtt> mqtt{};
@@ -70,7 +71,8 @@ struct App {
   Button actionButton{GPIO_NUM_19};
 
   PwmDevice light{GPIO_NUM_21};
-  Scheduler scheduler{};
+  Scheduler lightScheduler{};
+  Scheduler fanScheduler{};
   tm prevNow{};
 
   std::array<PwmDevice, 2> fans{{
@@ -98,7 +100,8 @@ struct App {
       goToSafeMode();
     }
 
-    scheduler.setSchedule(*schedule);
+    lightScheduler.setSchedule(*lightSchedule);
+    fanScheduler.setSchedule(*fanSchedule);
 
     time.setTimeZone(*timeZone);
 
@@ -153,9 +156,14 @@ struct App {
       publishLight();
     });
 
-    scheduler.setAction([this](int value) {
+    lightScheduler.setAction([this](int value) {
       light.set(value);
       publishLight();
+    });
+
+    fanScheduler.setAction([this](int value) {
+      fans[1].set(value);
+      publishFans();
     });
 
     subs.emplace_back(
@@ -188,10 +196,17 @@ struct App {
       fanIndex++;
     }
 
+    subs.emplace_back(mqtt->subscribe("fan/1/schedule", es::Mqtt::Qos::Qos0, [this](std::string_view value) {
+      if (!value.empty()) {
+        fanSchedule = std::string{value};
+        fanScheduler.setSchedule(value);
+      }
+    }));
+
     subs.emplace_back(mqtt->subscribe("light/schedule", es::Mqtt::Qos::Qos0, [this](std::string_view value) {
       if (!value.empty()) {
-        schedule = std::string{value};
-        scheduler.setSchedule(value);
+        lightSchedule = std::string{value};
+        lightScheduler.setSchedule(value);
       }
     }));
   }
@@ -209,6 +224,13 @@ struct App {
       nullptr);
   }
 
+  void publishFans() {
+    if (mqtt->isConnected()) {
+      mqtt->publish("fan/0/value", fans[0].get(), es::Mqtt::Qos::Qos0, true);
+      mqtt->publish("fan/1/value", fans[1].get(), es::Mqtt::Qos::Qos0, true);
+    }
+  }
+
   void publishLight() {
     if (mqtt->isConnected()) {
       mqtt->publish("light/value", light.get(), es::Mqtt::Qos::Qos0, true);
@@ -219,7 +241,8 @@ struct App {
     auto now = time.now();
     if (now) {
       if (prevNow.tm_min != now->tm_min) {
-        scheduler.tick();
+        lightScheduler.tick();
+        fanScheduler.tick();
       }
       prevNow = *now;
     }
