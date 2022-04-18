@@ -5,7 +5,10 @@
   import { DateTime } from "luxon";
   import Chart from "./Chart.svelte";
 
-  $: waterData = $history.filter((sample) => sample.key === "water");
+  $: waterData = $history
+    .filter((sample) => sample.key === "water")
+    .filter((_, i) => i % 8 === 0)
+
   $: xData = waterData.map((sample) => DateTime.fromMillis(sample.time));
   $: yData = waterData.map((sample) => sample.value.toFixed(0));
 
@@ -16,7 +19,7 @@
   $: {
     message = "";
 
-    const numberOfUsedSamples = 6 * 5; // last 5 hours of data
+    const numberOfUsedSamples = 6 * 5;
 
     if (waterData.length <= numberOfUsedSamples) {
       message = MESSAGE_UNKNOWN;
