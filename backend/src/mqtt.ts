@@ -1,4 +1,5 @@
 import MQTT from "async-mqtt"
+import throttle from "lodash.throttle"
 
 const MQTT_URL = process.env.MQTT_URL ?? ""
 const MQTT_USER = process.env.MQTT_USER ?? undefined
@@ -29,6 +30,8 @@ export async function setFan(plantId: string, value: number) {
 export function subscribeToLowWaterEvent(action: (waterAmount: number, plantId: string) => void) {
   const prevWaterAmounts: Map<string, number> = new Map()
 
+  const throttledAction = throttle(action, 60 * 1000);
+
   client.on("message", async (topic, payload) => {
     const match = topic.match(/plants\/(.*?)\/water/)
     if (!match) return
@@ -54,7 +57,7 @@ export function subscribeToLowWaterEvent(action: (waterAmount: number, plantId: 
     }
 
     if (shouldSendNotification) {
-      action(waterAmount, plantId)
+      throttledAction(waterAmount, plantId)
     }
 
     prevWaterAmounts.set(plantId, waterAmount)
